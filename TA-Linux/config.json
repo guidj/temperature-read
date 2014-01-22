@@ -1,0 +1,7 @@
+{
+
+	"readInterval":2,
+	"logFile":"tempread.log",
+	"outputFile":"/var/www/tempread_ws/temperature.log"
+
+}
