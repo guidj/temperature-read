@@ -1,0 +1,8 @@
+{
+
+	"readInterval":2,
+	"logFile":"tempread.log",
+	"availabilityFile":"/var/www/tempread_ws/availability.log",
+	"temperatureFile":"/var/www/tempread_ws/temperature.log",
+	"thresholdTemp":"28"
+}
