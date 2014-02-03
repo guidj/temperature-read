@@ -85,10 +85,14 @@ def TempRead():
 
 		#availability
 		availability = 0 if (temperature > thresholdTemp ) else 1
-		availabilityFile.write(str(date.day) + " " + str(date.month) + " " + str(date.year) + " " +  str(date.hour) + " " + str(date.minute) + " " + str(availability) + "\n")
-		tagFile.write(str(date.day) + " " + str(date.month) + " " + str(date.year) + " " +  str(date.hour) + " " + str(date.minute) + " " + str(availability) + "\n")
-		temperatureFile.write(str(date.day) + " " + str(date.month) + " " + str(date.year) + " " +  str(date.hour) + " " + str(date.minute) + " " + str(temperature) + "\n")
-		#print (str(date.day) + "-" + str(date.month) + "-" + str(date.year) + "\t" +  str(date.hour) + " " + str(date.minute) + "\t" + str(availability))
+		
+		availabilityMsg = str(date.day) + " " + str(date.month) + " " + str(date.year) + " " +  str(date.hour) + " " + str(date.minute) + " " + str(availability) + "\n"
+		temperatureMsg = str(date.day) + " " + str(date.month) + " " + str(date.year) + " " +  str(date.hour) + " " + str(date.minute) + " " + str(temperature) + "\n"
+		
+		availabilityFile.write(availabilityMsg)
+		tagFile.write(availabilityMsg)
+		temperatureFile.write(temperatureMsg)
+		print temperatureMsg
 
 
 	logFile.close()
