@@ -21,9 +21,11 @@ import json
 from interval import repeat
 
 global thresholdTemp
+global maxTAGRecords
 global logFileName
 global availabilityFileName
 global temperatureFileName
+global tagFileName
 
 def loadConfiguration():
 	configFile = "config.json"
@@ -35,8 +37,7 @@ def loadConfiguration():
 
 
 def TempRead():
-
-	cmd = "./tempread -u C"
+	
 	date = datetime.datetime.now()
 
 	p = subprocess.Popen(["./tempread", "-u", "C"], stdout=subprocess.PIPE, shell=False)
@@ -50,7 +51,29 @@ def TempRead():
 	logFile = open(logFileName,'a')
 	availabilityFile = open(availabilityFileName, 'a')
 	temperatureFile = open(temperatureFileName, 'a')
+	tagFile = open(tagFileName, 'r')
+	
+	#get (maxTAGRecords) thermal records from file
+	records = tagFile.readlines()
+	tagFile.close()
+	
+	n = len(records)
+	limit = int(maxTAGRecords)
+	
+	if n < limit:
+		startIndex = 0
+	else:
+		startIndex = n - limit + 1
+	
+	#for i in range(startIndex, n):
+	#	print records[i], " ", (i + 1)
+	
+	tagFile = open(tagFileName, 'w')
 
+	#re-write on maxTAGRecords - 1 records back to file, and make room for next record to reach maxTAGRecords limit
+	for i in range(startIndex, n):
+		tagFile.write(records[i])
+			
 	if (p.returncode == 1):
 		#log error
 		logFile.write("[" + str(date.year) + "-" + str(date.month) + "-" + str(date.day) + " " + str(date.hour) + ":" + str(date.minute) + "]\t" + output + "\n")
@@ -63,11 +86,13 @@ def TempRead():
 		#availability
 		availability = 0 if (temperature > thresholdTemp ) else 1
 		availabilityFile.write(str(date.day) + " " + str(date.month) + " " + str(date.year) + " " +  str(date.hour) + " " + str(date.minute) + " " + str(availability) + "\n")
+		tagFile.write(str(date.day) + " " + str(date.month) + " " + str(date.year) + " " +  str(date.hour) + " " + str(date.minute) + " " + str(availability) + "\n")
 		temperatureFile.write(str(date.day) + " " + str(date.month) + " " + str(date.year) + " " +  str(date.hour) + " " + str(date.minute) + " " + str(temperature) + "\n")
 		#print (str(date.day) + "-" + str(date.month) + "-" + str(date.year) + "\t" +  str(date.hour) + " " + str(date.minute) + "\t" + str(availability))
 
 
 	logFile.close()
+	tagFile.close()
 	availabilityFile.close()
 	temperatureFile.close()
 
@@ -79,7 +104,8 @@ thresholdTemp = float(config["thresholdTemp"])
 logFileName = config["logFile"]
 availabilityFileName = config["availabilityFile"]
 temperatureFileName = config["temperatureFile"]
-
+tagFileName = config["tagFile"]
+maxTAGRecords = config["maxTAGRecords"]
 
 #run TempRead everty 2 seconds, forever
 repeat(readInterval, TempRead)
