@@ -73,9 +73,9 @@ int main(int argc, char** argv)
         fSuccess = readTest.read( &flValue );
         if( fSuccess )
         {
-		// Display the temperature
-                //printf( "The current temp is %.2f\n", flValue );
-		cout << flValue;
+    		// Display the temperature
+            //printf( "The current temp is %.2f\n", flValue );
+		    cout << flValue;
         }
         else
         {
