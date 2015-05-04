@@ -17,102 +17,82 @@ Last Revision:
 
 import subprocess
 import datetime
-import json
+import os
+import os.path
 
-from tempmonitor.interval import repeat
-
-
-global thresholdTemp
-global maxTAGRecords
-global logFileName
-global availabilityFileName
-global temperatureFileName
-global tagFileName
-
-def loadConfiguration():
-	configFile = "config.json"
-	f = open(configFile, 'r')
-
-	configString = f.read()
-	config = json.loads(configString)
-	return config
+from interval import repeat
+from config import *
 
 
-def TempRead():
-	
-	date = datetime.datetime.now()
+def temp_read():
 
-	p = subprocess.Popen(["./tempread", "-u", "C"], stdout=subprocess.PIPE, shell=False)
+    date = datetime.datetime.now()
 
-	output, err = p.communicate()
+    p = subprocess.Popen([TEMP_READ_BINARY, "-u", "C"], stdout=subprocess.PIPE, shell=False)
 
-	#print "error : ", err
-	#print "output: ", output
-	#print "return: ", p.returncode
+    output, err = p.communicate()
 
-	logFile = open(logFileName,'a')
-	availabilityFile = open(availabilityFileName, 'a')
-	temperatureFile = open(temperatureFileName, 'a')
-	tagFile = open(tagFileName, 'r')
-	
-	#get (maxTAGRecords) thermal records from file
-	records = tagFile.readlines()
-	tagFile.close()
-	
-	n = len(records)
-	limit = int(maxTAGRecords)
-	
-	if n < limit:
-		startIndex = 0
-	else:
-		startIndex = n - limit + 1
-	
-	#for i in range(startIndex, n):
-	#	print records[i], " ", (i + 1)
-	
-	tagFile = open(tagFileName, 'w')
+    log_file = open(LOG_FILE, 'a')
+    availability_file = open(AVAILABILITY_FILE, 'a')
+    temperature_file = open(TEMPERATURE_FILE, 'a')
 
-	#re-write on maxTAGRecords - 1 records back to file, and make room for next record to reach maxTAGRecords limit
-	for i in range(startIndex, n):
-		tagFile.write(records[i])
-			
-	if (p.returncode == 1):
-		#log error
-		logFile.write("[" + str(date.year) + "-" + str(date.month) + "-" + str(date.day) + " " + str(date.hour) + ":" + str(date.minute) + "]\t" + output + "\n")
-		#print ("[" + str(date.year) + "-" + str(date.month) + "-" + str(date.day) + " " + str(date.hour) + ":" + str(date.minute) + "]"), output
-	elif (p.returncode == 0):
-		#log temperature read
-		#format: year month day hour minute second temperature
-		temperature = float(output)
+    if os.path.exists(TAG_FILE):
+        tag_file = open(TAG_FILE, 'r')
 
-		#availability
-		availability = 0 if (temperature > thresholdTemp ) else 1
-		
-		availabilityMsg = str(date.day) + " " + str(date.month) + " " + str(date.year) + " " +  str(date.hour) + " " + str(date.minute) + " " + str(availability) + "\n"
-		temperatureMsg = str(date.day) + " " + str(date.month) + " " + str(date.year) + " " +  str(date.hour) + " " + str(date.minute) + " " + str(temperature) + "\n"
-		
-		availabilityFile.write(availabilityMsg)
-		tagFile.write(availabilityMsg)
-		temperatureFile.write(temperatureMsg)
-		print temperatureMsg
+        records = tag_file.readlines()
+        tag_file.close()
 
+        n = len(records)
+    else:
 
-	logFile.close()
-	tagFile.close()
-	availabilityFile.close()
-	temperatureFile.close()
+        records = list()
+        n = 0
 
-#load configuration
-config = loadConfiguration()
+    limit = MAX_RECORDS
 
-readInterval = float(config["readInterval"])
-thresholdTemp = float(config["thresholdTemp"])
-logFileName = config["logFile"]
-availabilityFileName = config["availabilityFile"]
-temperatureFileName = config["temperatureFile"]
-tagFileName = config["tagFile"]
-maxTAGRecords = config["maxTAGRecords"]
+    if n < limit:
+        start_index = 0
+    else:
+        start_index = n - limit + 1
 
-#run TempRead everty 2 seconds, forever
-repeat(readInterval, TempRead)
-#TempRead()
+    tag_file = open(TAG_FILE, 'w')
+
+    #re-write on maxRecords - 1 records back to file, and make room for next record to reach maxTAGRecords limit
+    for i in range(start_index, n):
+        tag_file.write(records[i])
+
+    if p.returncode == 1:
+        #log error
+        log_file.write(
+            "[" + str(date.year) + "-" + str(date.month) + "-" + str(date.day) + " " + str(date.hour) + ":" + str(
+                date.minute) + "]\t" + output + "\n")
+
+    elif p.returncode == 0:
+
+        #log temperature read
+        #format: year month day hour minute second temperature
+        temperature = float(output)
+
+        #availability
+        availability = 0 if temperature > THRESHOLD_TEMP else 1
+
+        availability_msg = str(date.day) + " " + str(date.month) + " " + str(date.year) + " " + str(date.hour) + " " + \
+                           str(date.minute) + " " + str(availability) + "\n"
+        temperature_msg = str(date.day) + " " + str(date.month) + " " + str(date.year) + " " + str(date.hour) + " " + \
+                          str(date.minute) + " " + str(temperature) + "\n"
+
+        availability_file.write(availability_msg)
+        tag_file.write(availability_msg)
+        temperature_file.write(temperature_msg)
+
+        print temperature_msg
+
+    log_file.close()
+    tag_file.close()
+    availability_file.close()
+    temperature_file.close()
+
+if __name__ == "__main__":
+
+    #run TempRead every n seconds, forever
+    repeat(READ_INTERVAL, temp_read)
