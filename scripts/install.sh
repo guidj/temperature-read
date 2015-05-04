@@ -1,4 +1,4 @@
-PROGRAM_FILES=" config.json interval.py tempread tempread.py "
+PROGRAM_FILES="../config.json ../interval.py ../tempread ../tempread.py "
 PROGRAM_DIR="/opt/TAG/tempread"
 SERVICE_SCRIPT=$PROGRAM_DIR/tempread.py
 INIT_SCRIPT="tempread.sh"

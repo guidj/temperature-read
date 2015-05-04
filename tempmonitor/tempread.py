@@ -18,7 +18,9 @@ Last Revision:
 import subprocess
 import datetime
 import json
-from interval import repeat
+
+from tempmonitor.interval import repeat
+
 
 global thresholdTemp
 global maxTAGRecords
