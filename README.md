@@ -1,27 +1,27 @@
-#Temperature Reader
+# Temperature Reader
 
 This is a tool to read log temperature reads, and measured availability based on a configured threshold temperature.
 
 It has an accompanying tool to read temperatures from [temperature@lert's USB](http://www.temperaturealert.com/Wireless-Temperature-Store/Temperature-Alert-USB-Sensor.aspx) monitor.
 
-##Usage
+## Usage
 
-###Compile executables:
+### Compile executables:
 ```sh
 cd tempread
 make
 ```
 The binary files will be created on a `bin/` folder.
 
-###Configure parameters
+### Configure parameters
 
 Edit the [config.py](tempmonitor/config.py) file.  See the [configuration](#configuration) section.
-###Run Reader:
+### Run Reader:
 ```sh
 python tempmonitor/tempread.py
 ```
 
-##Configuration
+## Configuration
 
 
 *  **READ_INTERVAL**: In seconds
